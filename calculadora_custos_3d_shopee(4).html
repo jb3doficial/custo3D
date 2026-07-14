@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>Calculadora de Custos 3D + Shopee</title>
+  <style>
+    :root{
+      --bg:#090d18;
+      --surface:rgba(20,27,46,.82);
+      --surface-2:rgba(30,39,64,.72);
+      --border:rgba(255,255,255,.09);
+      --text:#f7f8fc;
+      --muted:#9ca8c5;
+      --primary:#7c5cff;
+      --primary-2:#25d8ff;
+      --accent:#ff4fa3;
+      --success:#35e4a4;
+      --warning:#ffcc66;
+      --danger:#ff6f7d;
+      --shadow:0 24px 80px rgba(0,0,0,.35);
+      --radius:24px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 8% 5%,rgba(124,92,255,.28),transparent 28%),
+        radial-gradient(circle at 92% 18%,rgba(37,216,255,.19),transparent 26%),
+        radial-gradient(circle at 70% 95%,rgba(255,79,163,.18),transparent 28%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    body::before, body::after{
+      content:"";
+      position:fixed;
+      width:280px;
+      height:280px;
+      border-radius:999px;
+      filter:blur(80px);
+      opacity:.22;
+      pointer-events:none;
+      z-index:-1;
+      animation:float 9s ease-in-out infinite;
+    }
+    body::before{background:var(--primary);left:-90px;top:20%}
+    body::after{background:var(--accent);right:-110px;bottom:8%;animation-delay:-4s}
+    @keyframes float{50%{transform:translateY(-24px) scale(1.08)}}
+
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .app{
+      width:min(1180px,100%);
+      margin:auto;
+      padding:22px 18px 110px;
+    }
+
+    .hero{
+      display:flex;
+      gap:18px;
+      justify-content:space-between;
+      align-items:flex-end;
+      margin:8px 0 22px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.045);
+      border-radius:999px;
+      color:#d9dff1;
+      font-size:.82rem;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    h1{
+      margin:12px 0 8px;
+      font-size:clamp(2rem,5vw,3.65rem);
+      line-height:.98;
+      letter-spacing:-.055em;
+      max-width:760px;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      max-width:720px;
+      line-height:1.6;
+    }
+    .save-status{
+      color:var(--muted);
+      font-size:.84rem;
+      white-space:nowrap;
+      padding-bottom:4px;
+    }
+
+    .tabs{
+      position:sticky;
+      top:12px;
+      z-index:20;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+      padding:7px;
+      margin-bottom:18px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:rgba(10,14,26,.76);
+      backdrop-filter:blur(18px);
+      box-shadow:0 12px 40px rgba(0,0,0,.25);
+    }
+    .tab-btn{
+      position:relative;
+      border:0;
+      min-height:54px;
+      padding:12px 14px;
+      border-radius:13px;
+      color:var(--muted);
+      background:transparent;
+      font-weight:800;
+      transition:.25s ease;
+    }
+    .tab-btn.active{
+      color:white;
+      background:linear-gradient(135deg,rgba(124,92,255,.95),rgba(37,216,255,.72));
+      box-shadow:0 10px 30px rgba(82,100,255,.3);
+      transform:translateY(-1px);
+    }
+
+    .tab-panel{display:none;animation:enter .35s ease both}
+    .tab-panel.active{display:block}
+    @keyframes enter{
+      from{opacity:0;transform:translateY(12px) scale(.995)}
+      to{opacity:1;transform:none}
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr);
+      gap:18px;
+      align-items:start;
+    }
+    .stack{display:grid;gap:18px}
+    .card{
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      background:linear-gradient(145deg,rgba(26,34,57,.9),rgba(14,20,35,.86));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-inner{padding:22px}
+    .card-title{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .card-title h2,.card-title h3{margin:0;letter-spacing:-.025em}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(53,228,164,.1);
+      color:#8af1c9;
+      border:1px solid rgba(53,228,164,.2);
+      font-size:.76rem;
+      font-weight:800;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    .field{display:grid;gap:7px}
+    .field.full{grid-column:1/-1}
+    label{
+      color:#dbe1f2;
+      font-size:.86rem;
+      font-weight:750;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:.73rem;
+      line-height:1.35;
+      margin-top:-2px;
+    }
+    .input-wrap{
+      display:flex;
+      align-items:center;
+      min-height:52px;
+      border-radius:15px;
+      border:1px solid rgba(255,255,255,.09);
+      background:rgba(6,10,20,.52);
+      transition:.2s ease;
+      overflow:hidden;
+    }
+    .input-wrap:focus-within{
+      border-color:rgba(37,216,255,.62);
+      box-shadow:0 0 0 4px rgba(37,216,255,.09);
+      transform:translateY(-1px);
+    }
+    .prefix,.suffix{
+      color:#95a1bf;
+      font-weight:800;
+      padding:0 12px;
+      white-space:nowrap;
+    }
+    input,select{
+      width:100%;
+      min-width:0;
+      color:white;
+      border:0;
+      outline:0;
+      background:transparent;
+      padding:14px 13px;
+      font-weight:750;
+    }
+    select option{color:#111827}
+    input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{margin:0}
+
+    .machine-profile{
+      grid-column:1/-1;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:15px 16px;
+      border:1px solid rgba(37,216,255,.18);
+      border-radius:17px;
+      background:linear-gradient(135deg,rgba(37,216,255,.08),rgba(124,92,255,.08));
+    }
+    .machine-profile strong{display:block;margin-bottom:4px}
+    .machine-profile small{display:block;color:var(--muted);line-height:1.4}
+    .profile-tag{
+      flex:none;
+      padding:8px 11px;
+      border-radius:999px;
+      color:#a8efff;
+      background:rgba(37,216,255,.1);
+      border:1px solid rgba(37,216,255,.18);
+      font-size:.75rem;
+      font-weight:900;
+    }
+
+    details{
+      margin-top:16px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.025);
+      overflow:hidden;
+    }
+    summary{
+      padding:15px 16px;
+      list-style:none;
+      font-weight:800;
+      color:#dfe5f7;
+      cursor:pointer;
+    }
+    summary::-webkit-details-marker{display:none}
+    details .advanced{padding:0 16px 16px}
+
+    .result-card{
+      position:sticky;
+      top:92px;
+    }
+    .result-top{
+      position:relative;
+      padding:24px;
+      background:
+        linear-gradient(135deg,rgba(124,92,255,.28),rgba(37,216,255,.12)),
+        rgba(255,255,255,.025);
+      border-bottom:1px solid var(--border);
+    }
+    .result-label{
+      color:#c7d0e9;
+      font-size:.82rem;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .big-value{
+      margin-top:7px;
+      font-size:clamp(2.35rem,6vw,4.1rem);
+      font-weight:900;
+      letter-spacing:-.06em;
+      line-height:1;
+      text-shadow:0 8px 35px rgba(37,216,255,.22);
+      transition:.2s ease;
+      word-break:break-word;
+    }
+    .big-value.bump{transform:scale(1.025)}
+    .sub-value{margin-top:10px;color:var(--muted);font-size:.9rem}
+    .breakdown{padding:18px 22px 22px;display:grid;gap:10px}
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:10px 0;
+      border-bottom:1px dashed rgba(255,255,255,.08);
+      color:#c9d1e7;
+    }
+    .row:last-child{border-bottom:0}
+    .row strong{color:white;text-align:right}
+    .row.total{
+      margin-top:4px;
+      padding:15px;
+      border:1px solid rgba(53,228,164,.18);
+      border-radius:15px;
+      background:rgba(53,228,164,.07);
+      color:#b8f7df;
+    }
+    .row.negative strong{color:var(--danger)}
+    .row.positive strong{color:var(--success)}
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .btn{
+      border:1px solid var(--border);
+      border-radius:14px;
+      min-height:48px;
+      padding:0 16px;
+      color:white;
+      background:rgba(255,255,255,.055);
+      font-weight:850;
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.09)}
+    .btn.primary{
+      border:0;
+      background:linear-gradient(135deg,var(--primary),#4d8cff);
+      box-shadow:0 12px 25px rgba(79,100,255,.28);
+    }
+    .btn.danger{color:#ffb2ba}
+
+    .mode-switch{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:7px;
+      padding:6px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:rgba(5,9,18,.42);
+    }
+    .mode-btn{
+      border:0;
+      border-radius:10px;
+      padding:10px;
+      color:var(--muted);
+      background:transparent;
+      font-weight:800;
+    }
+    .mode-btn.active{
+      color:white;
+      background:rgba(124,92,255,.3);
+    }
+
+    .profit-meter{
+      height:11px;
+      margin-top:16px;
+      border-radius:999px;
+      overflow:hidden;
+      background:rgba(255,255,255,.08);
+    }
+    .profit-meter > span{
+      display:block;
+      width:0%;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,var(--danger),var(--warning),var(--success));
+      transition:width .45s cubic-bezier(.22,1,.36,1);
+    }
+
+    .products-toolbar{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:12px;
+      align-items:end;
+      margin-bottom:18px;
+    }
+    .search-box{
+      position:relative;
+    }
+    .search-box .input-wrap{
+      padding-left:5px;
+    }
+    .search-icon{
+      padding-left:12px;
+      color:var(--muted);
+      font-size:1rem;
+    }
+    .clear-search{
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:12px;
+      font-weight:900;
+      display:none;
+    }
+    .clear-search.show{display:block}
+    .products-summary{
+      color:var(--muted);
+      font-size:.82rem;
+      text-align:right;
+      white-space:nowrap;
+      padding-bottom:4px;
+    }
+    .saved-products{
+      display:grid;
+      gap:10px;
+    }
+    .saved-empty{
+      padding:22px 16px;
+      text-align:center;
+      color:var(--muted);
+      border:1px dashed rgba(255,255,255,.12);
+      border-radius:16px;
+      background:rgba(255,255,255,.02);
+    }
+    .product-item{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:12px;
+      align-items:center;
+      padding:14px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.035);
+      transition:.2s ease;
+    }
+    .product-item:hover{
+      transform:translateY(-1px);
+      border-color:rgba(37,216,255,.22);
+      background:rgba(255,255,255,.055);
+    }
+    .product-name{
+      font-weight:850;
+      color:#f4f7ff;
+      overflow-wrap:anywhere;
+    }
+    .product-meta{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:.77rem;
+    }
+    .product-value{
+      margin-top:5px;
+      color:var(--success);
+      font-size:1.14rem;
+      font-weight:900;
+    }
+    .product-actions{
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .mini-btn{
+      min-height:38px;
+      padding:0 11px;
+      border:1px solid var(--border);
+      border-radius:11px;
+      background:rgba(255,255,255,.055);
+      color:white;
+      font-size:.76rem;
+      font-weight:850;
+    }
+    .mini-btn:hover{background:rgba(255,255,255,.1)}
+    .mini-btn.delete{color:#ffabb4}
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+      place-items:center;
+      padding:18px;
+      background:rgba(2,5,12,.72);
+      backdrop-filter:blur(10px);
+    }
+    .modal-backdrop.show{display:grid;animation:enter .2s ease both}
+    .modal{
+      width:min(460px,100%);
+      border:1px solid var(--border);
+      border-radius:24px;
+      background:linear-gradient(145deg,rgba(28,37,61,.98),rgba(12,18,31,.98));
+      box-shadow:0 30px 100px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .modal-header{
+      padding:20px 22px 13px;
+    }
+    .modal-header h3{margin:0 0 6px;font-size:1.3rem}
+    .modal-header p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.45}
+    .modal-body{padding:8px 22px 22px}
+    .modal-cost{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      margin:14px 0;
+      padding:14px;
+      border-radius:15px;
+      color:#cbd5ec;
+      background:rgba(53,228,164,.07);
+      border:1px solid rgba(53,228,164,.17);
+    }
+    .modal-cost strong{color:var(--success)}
+    .modal-actions{
+      display:flex;
+      gap:10px;
+      margin-top:17px;
+    }
+    .modal-actions .btn{flex:1}
+
+    .notice{
+      margin-top:14px;
+      padding:13px 14px;
+      border:1px solid rgba(255,204,102,.17);
+      border-radius:14px;
+      color:#d9d0b6;
+      background:rgba(255,204,102,.055);
+      font-size:.8rem;
+      line-height:1.45;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:24px;
+      z-index:99;
+      transform:translate(-50%,25px);
+      opacity:0;
+      pointer-events:none;
+      padding:12px 16px;
+      border-radius:13px;
+      color:#07130e;
+      background:var(--success);
+      box-shadow:0 14px 38px rgba(0,0,0,.35);
+      font-weight:900;
+      transition:.25s ease;
+    }
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .result-card{position:relative;top:auto}
+      .hero{align-items:flex-start;flex-direction:column}
+      .save-status{padding:0}
+    }
+    @media (max-width:600px){
+      .app{padding:14px 12px 100px}
+      .hero{margin-top:5px}
+      h1{font-size:2.25rem}
+      .hero p{font-size:.9rem}
+      .tabs{top:8px}
+      .tab-btn{font-size:.84rem;padding:10px 8px}
+      .card-inner,.result-top{padding:18px}
+      .breakdown{padding:15px 18px 18px}
+      .grid{grid-template-columns:1fr}
+      .field.full{grid-column:auto}
+      .machine-profile{align-items:flex-start;flex-direction:column}
+      .products-toolbar{grid-template-columns:1fr}
+      .products-summary{text-align:left}
+      .product-item{grid-template-columns:1fr}
+      .product-actions{justify-content:flex-start}
+      .big-value{font-size:2.7rem}
+      .btn{flex:1}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">🧮 CUSTOS 3D + SHOPEE</span>
+        <h1>Saiba quanto custa, quanto sobra e quanto cobrar.</h1>
+        <p>Calculadora completa para impressão 3D, depreciação da máquina, energia, perdas, taxas da Shopee, ADS, embalagem e lucro.</p>
+      </div>
+      <div class="save-status" id="saveStatus">Dados salvos automaticamente</div>
+    </section>
+
+    <nav class="tabs" aria-label="Navegação">
+      <button class="tab-btn active" data-tab="producao">🖨️ Custo de impressão</button>
+      <button class="tab-btn" data-tab="shopee">🛍️ Venda na Shopee</button>
+      <button class="tab-btn" data-tab="produtos">📦 Produtos salvos</button>
+    </nav>
+
+    <section class="tab-panel active" id="producao">
+      <div class="layout">
+        <div class="stack">
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-title">
+                <h2>Dados da produção</h2>
+                <span class="badge">Cálculo automático</span>
+              </div>
+
+              <div class="grid">
+                <div class="field">
+                  <label for="filamentGrams">Filamento utilizado</label>
+                  <div class="input-wrap"><input id="filamentGrams" type="number" min="0" step="0.1" value="100"><span class="suffix">g</span></div>
+                </div>
+
+                <div class="field">
+                  <label for="batchQty">Quantidade produzida</label>
+                  <div class="input-wrap"><input id="batchQty" type="number" min="1" step="1" value="1"><span class="suffix">un.</span></div>
+                  <span class="hint">Quantidade de peças feitas nessa impressão.</span>
+                </div>
+
+                <div class="field">
+                  <label for="printHours">Tempo de impressão</label>
+                  <div class="input-wrap"><input id="printHours" type="number" min="0" step="1" value="5"><span class="suffix">h</span></div>
+                </div>
+
+                <div class="field">
+                  <label for="printMinutes">Minutos adicionais</label>
+                  <div class="input-wrap"><input id="printMinutes" type="number" min="0" max="59" step="1" value="0"><span class="suffix">min</span></div>
+                </div>
+
+                <div class="field full">
+                  <label for="extraProduction">Valor adicional de consumíveis</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="extraProduction" type="number" min="0" step="0.01" value="0"></div>
+                  <span class="hint">Argola, ímã, cola, adesivo, MDF, embalagem interna, mão de obra ou acabamento.</span>
+                </div>
+              </div>
+
+              <details>
+                <summary>⚙️ Custos avançados e dados da máquina</summary>
+                <div class="advanced">
+                  <div class="grid">
+                    <div class="machine-profile">
+                      <div>
+                        <strong>🖨️ Perfil: Creality K2 Plus</strong>
+                        <small>Os valores abaixo ficam armazenados automaticamente neste navegador e serão reutilizados nos próximos cálculos.</small>
+                      </div>
+                      <span class="profile-tag">SALVAMENTO AUTOMÁTICO</span>
+                    </div>
+
+                    <div class="field">
+                      <label for="filamentKg">Valor do kg do filamento</label>
+                      <div class="input-wrap"><span class="prefix">R$</span><input id="filamentKg" type="number" min="0" step="0.01" value="85"></div>
+                    </div>
+
+                    <div class="field">
+                      <label for="printerValue">Valor da Creality K2 Plus</label>
+                      <div class="input-wrap"><span class="prefix">R$</span><input id="printerValue" type="number" min="0" step="0.01" value="10000"></div>
+                      <span class="hint">Coloque o valor real pago pela máquina.</span>
+                    </div>
+
+                    <div class="field">
+                      <label for="printerLife">Vida útil estimada</label>
+                      <div class="input-wrap"><input id="printerLife" type="number" min="1" step="1" value="10000"><span class="suffix">horas</span></div>
+                      <span class="hint">Usada para calcular a depreciação por hora.</span>
+                    </div>
+
+                    <div class="field">
+                      <label for="powerW">Consumo médio durante a impressão</label>
+                      <div class="input-wrap"><input id="powerW" type="number" min="0" step="1" value="500"><span class="suffix">W</span></div>
+                    </div>
+
+                    <div class="field">
+                      <label for="energyRate">Valor da energia elétrica</label>
+                      <div class="input-wrap"><span class="prefix">R$</span><input id="energyRate" type="number" min="0" step="0.01" value="0.95"><span class="suffix">/kWh</span></div>
+                    </div>
+
+                    <div class="field">
+                      <label for="maintenancePct">Reserva para manutenção</label>
+                      <div class="input-wrap"><input id="maintenancePct" type="number" min="0" step="0.1" value="10"><span class="suffix">%</span></div>
+                      <span class="hint">Percentual aplicado sobre a depreciação da máquina.</span>
+                    </div>
+
+                    <div class="field">
+                      <label for="lossPct">Margem para perdas e falhas</label>
+                      <div class="input-wrap"><input id="lossPct" type="number" min="0" step="0.1" value="5"><span class="suffix">%</span></div>
+                    </div>
+                  </div>
+
+                  <div class="actions">
+                    <button class="btn" id="saveAdvanced" type="button">Salvar custos fixos</button>
+                    <button class="btn danger" id="resetAdvanced" type="button">Restaurar perfil K2 Plus</button>
+                  </div>
+                </div>
+              </details>
+
+              <div class="actions">
+                <button class="btn primary" id="sendToShopee">Usar custo na Shopee →</button>
+                <button class="btn" id="saveProduct">💾 Salvar produto</button>
+                <button class="btn" id="copyProduction">Copiar resumo</button>
+                <button class="btn danger" id="resetProduction">Limpar cálculo</button>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <aside class="card result-card">
+          <div class="result-top">
+            <div class="result-label">Custo por unidade</div>
+            <div class="big-value" id="unitCost">R$ 0,00</div>
+            <div class="sub-value" id="batchCostText">Custo total do lote: R$ 0,00</div>
+          </div>
+          <div class="breakdown">
+            <div class="row"><span>Filamento</span><strong id="rFilament">R$ 0,00</strong></div>
+            <div class="row"><span>Depreciação da máquina</span><strong id="rMachine">R$ 0,00</strong></div>
+            <div class="row"><span>Consumo estimado</span><strong id="rEnergyKwh">0,00 kWh</strong></div>
+            <div class="row"><span>Custo da energia elétrica</span><strong id="rEnergy">R$ 0,00</strong></div>
+            <div class="row"><span>Reserva de manutenção</span><strong id="rMaintenance">R$ 0,00</strong></div>
+            <div class="row"><span>Acabamento e consumíveis</span><strong id="rExtras">R$ 0,00</strong></div>
+            <div class="row"><span>Margem de perdas</span><strong id="rLoss">R$ 0,00</strong></div>
+            <div class="row total"><span>Total do lote</span><strong id="rBatch">R$ 0,00</strong></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="shopee">
+      <div class="layout">
+        <div class="stack">
+          <article class="card">
+            <div class="card-inner">
+              <div class="card-title">
+                <h2>Venda na Shopee</h2>
+                <span class="badge">Taxas editáveis</span>
+              </div>
+
+              <div class="grid">
+                <div class="field">
+                  <label for="salePrice">Preço de venda</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="salePrice" type="number" min="0" step="0.01" value="39.90"></div>
+                </div>
+
+                <div class="field">
+                  <label for="productionCost">Custo do produto</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="productionCost" type="number" min="0" step="0.01" value="0"></div>
+                </div>
+
+                <div class="field">
+                  <label for="packagingCost">Embalagem</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="packagingCost" type="number" min="0" step="0.01" value="1"></div>
+                </div>
+
+                <div class="field">
+                  <label for="otherSaleCosts">Outros custos por venda</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="otherSaleCosts" type="number" min="0" step="0.01" value="0"></div>
+                </div>
+
+                <div class="field">
+                  <label for="shopeeFeePct">Taxa percentual Shopee</label>
+                  <div class="input-wrap"><input id="shopeeFeePct" type="number" min="0" max="100" step="0.1" value="22.5"><span class="suffix">%</span></div>
+                </div>
+
+                <div class="field">
+                  <label for="campaignFeePct">Taxa extra de campanha</label>
+                  <div class="input-wrap"><input id="campaignFeePct" type="number" min="0" max="100" step="0.1" value="2.5"><span class="suffix">%</span></div>
+                </div>
+
+                <div class="field">
+                  <label for="fixedFee">Taxa fixa por item/pedido</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="fixedFee" type="number" min="0" step="0.01" value="4"></div>
+                </div>
+
+                <div class="field">
+                  <label for="taxPct">Impostos adicionais</label>
+                  <div class="input-wrap"><input id="taxPct" type="number" min="0" max="100" step="0.1" value="0"><span class="suffix">%</span></div>
+                </div>
+
+                <div class="field full">
+                  <label>Como calcular o ADS?</label>
+                  <div class="mode-switch">
+                    <button class="mode-btn active" data-mode="pct">Percentual da venda</button>
+                    <button class="mode-btn" data-mode="fixed">Valor fixo por venda</button>
+                  </div>
+                </div>
+
+                <div class="field full">
+                  <label for="adsValue" id="adsLabel">Custo de ADS sobre a venda</label>
+                  <div class="input-wrap">
+                    <span class="prefix" id="adsPrefix"></span>
+                    <input id="adsValue" type="number" min="0" step="0.1" value="10">
+                    <span class="suffix" id="adsSuffix">%</span>
+                  </div>
+                  <span class="hint">Ex.: ROAS 10 equivale aproximadamente a 10% do valor vendido em ADS.</span>
+                </div>
+
+                <div class="field full">
+                  <label for="desiredProfit">Lucro desejado por unidade</label>
+                  <div class="input-wrap"><span class="prefix">R$</span><input id="desiredProfit" type="number" min="0" step="0.01" value="10"></div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="btn primary" id="applySuggested">Aplicar preço recomendado</button>
+                <button class="btn" id="copyShopee">Copiar resumo</button>
+                <button class="btn danger" id="resetShopee">Limpar</button>
+              </div>
+
+              <div class="notice">
+                As taxas variam conforme categoria, programa, campanha e regras da conta. Os campos são editáveis para você manter o cálculo atualizado.
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="card result-card">
+          <div class="result-top">
+            <div class="result-label">Lucro líquido por venda</div>
+            <div class="big-value" id="profitValue">R$ 0,00</div>
+            <div class="sub-value" id="marginText">Margem líquida: 0,00%</div>
+            <div class="profit-meter"><span id="profitMeter"></span></div>
+          </div>
+          <div class="breakdown">
+            <div class="row"><span>Taxas percentuais</span><strong id="rFeesPct">R$ 0,00</strong></div>
+            <div class="row"><span>Taxa fixa</span><strong id="rFixedFee">R$ 0,00</strong></div>
+            <div class="row"><span>ADS</span><strong id="rAds">R$ 0,00</strong></div>
+            <div class="row"><span>Produto + embalagem + extras</span><strong id="rSaleCosts">R$ 0,00</strong></div>
+            <div class="row"><span>Valor líquido após taxas</span><strong id="rNetRevenue">R$ 0,00</strong></div>
+            <div class="row" id="profitRow"><span>Lucro líquido</span><strong id="rProfit">R$ 0,00</strong></div>
+            <div class="row"><span>Markup sobre o custo</span><strong id="rMarkup">0,00x</strong></div>
+            <div class="row total"><span>Preço recomendado</span><strong id="rSuggested">R$ 0,00</strong></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="produtos">
+      <article class="card">
+        <div class="card-inner">
+          <div class="card-title">
+            <div>
+              <h2>Produtos salvos</h2>
+              <div class="hint">Pesquise pelo nome e use o custo unitário diretamente na calculadora da Shopee.</div>
+            </div>
+            <span class="badge" id="savedCount">0 produtos</span>
+          </div>
+
+          <div class="products-toolbar">
+            <div class="field search-box">
+              <label for="productSearch">Pesquisar produto</label>
+              <div class="input-wrap">
+                <span class="search-icon">🔎</span>
+                <input id="productSearch" type="search" autocomplete="off" placeholder="Digite o nome do produto">
+                <button class="clear-search" id="clearProductSearch" type="button" aria-label="Limpar pesquisa">✕</button>
+              </div>
+            </div>
+            <div class="products-summary" id="productsSummary">Todos os produtos salvos</div>
+          </div>
+
+          <div class="saved-products" id="savedProductsList">
+            <div class="saved-empty">Nenhum produto salvo ainda.</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <div class="modal-backdrop" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="productModalTitle">Salvar produto</h3>
+        <p>Informe um nome para identificar este custo depois.</p>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="productName">Nome do produto</label>
+          <div class="input-wrap">
+            <input id="productName" type="text" maxlength="80" placeholder="Ex.: Chaveiro Pato da Vida">
+          </div>
+        </div>
+        <div class="modal-cost">
+          <span>Valor unitário calculado</span>
+          <strong id="modalUnitCost">R$ 0,00</strong>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="cancelSaveProduct" type="button">Cancelar</button>
+          <button class="btn primary" id="confirmSaveProduct" type="button">Salvar produto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copiado</div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const money = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+    const numberBR = new Intl.NumberFormat('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const storageKey = 'calc3dShopee_v2';
+    const productsStorageKey = 'calc3dShopee_products_v1';
+    let adsMode = 'pct';
+    let saveTimer;
+    let savedProducts = [];
+
+    const productionIds = [
+      'filamentKg','filamentGrams','printerValue','printerLife','printHours','printMinutes',
+      'batchQty','extraProduction','powerW','energyRate','maintenancePct','lossPct'
+    ];
+    const shopeeIds = [
+      'salePrice','productionCost','packagingCost','otherSaleCosts','shopeeFeePct',
+      'campaignFeePct','fixedFee','taxPct','adsValue','desiredProfit'
+    ];
+    const allIds = [...productionIds,...shopeeIds];
+
+    function num(id){
+      const value = parseFloat($(id).value);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function setText(id,value){ $(id).textContent = value; }
+
+    function animateValue(id){
+      const el = $(id);
+      el.classList.remove('bump');
+      requestAnimationFrame(() => {
+        el.classList.add('bump');
+        setTimeout(() => el.classList.remove('bump'),180);
+      });
+    }
+
+    function calculateProduction(){
+      const kgPrice = num('filamentKg');
+      const grams = num('filamentGrams');
+      const printer = num('printerValue');
+      const life = Math.max(1,num('printerLife'));
+      const hours = num('printHours') + num('printMinutes') / 60;
+      const qty = Math.max(1,num('batchQty'));
+      const extras = num('extraProduction');
+      const power = num('powerW');
+      const energyRate = num('energyRate');
+      const maintenancePct = num('maintenancePct');
+      const lossPct = num('lossPct');
+
+      const filament = kgPrice * (grams / 1000);
+      const machine = (printer / life) * hours;
+      const energyKwh = (power / 1000) * hours;
+      const energy = energyKwh * energyRate;
+      const maintenance = machine * (maintenancePct / 100);
+      const base = filament + machine + energy + maintenance + extras;
+      const loss = base * (lossPct / 100);
+      const batch = base + loss;
+      const unit = batch / qty;
+
+      setText('rFilament',money.format(filament));
+      setText('rMachine',money.format(machine));
+      setText('rEnergyKwh',`${numberBR.format(energyKwh)} kWh`);
+      setText('rEnergy',money.format(energy));
+      setText('rMaintenance',money.format(maintenance));
+      setText('rExtras',money.format(extras));
+      setText('rLoss',money.format(loss));
+      setText('rBatch',money.format(batch));
+      setText('unitCost',money.format(unit));
+      setText('batchCostText',`Custo total do lote: ${money.format(batch)} • ${qty} unidade(s)`);
+      animateValue('unitCost');
+
+      return {filament,machine,energyKwh,energy,maintenance,extras,loss,batch,unit,qty,hours};
+    }
+
+    function calculateShopee(){
+      const sale = num('salePrice');
+      const production = num('productionCost');
+      const packaging = num('packagingCost');
+      const other = num('otherSaleCosts');
+      const feePct = num('shopeeFeePct');
+      const campaignPct = num('campaignFeePct');
+      const taxPct = num('taxPct');
+      const fixed = num('fixedFee');
+      const adsInput = num('adsValue');
+      const desired = num('desiredProfit');
+
+      const totalPct = feePct + campaignPct + taxPct;
+      const pctFees = sale * (totalPct / 100);
+      const ads = adsMode === 'pct' ? sale * (adsInput / 100) : adsInput;
+      const costs = production + packaging + other;
+      const netRevenue = sale - pctFees - fixed - ads;
+      const profit = netRevenue - costs;
+      const margin = sale > 0 ? (profit / sale) * 100 : 0;
+      const markup = costs > 0 ? sale / costs : 0;
+
+      const adsPct = adsMode === 'pct' ? adsInput : 0;
+      const adsFixed = adsMode === 'fixed' ? adsInput : 0;
+      const divisor = 1 - ((totalPct + adsPct) / 100);
+      const suggested = divisor > 0 ? (costs + fixed + adsFixed + desired) / divisor : 0;
+
+      setText('rFeesPct',money.format(pctFees));
+      setText('rFixedFee',money.format(fixed));
+      setText('rAds',money.format(ads));
+      setText('rSaleCosts',money.format(costs));
+      setText('rNetRevenue',money.format(netRevenue));
+      setText('rProfit',money.format(profit));
+      setText('rMarkup',`${numberBR.format(markup)}x`);
+      setText('rSuggested',money.format(suggested));
+      setText('profitValue',money.format(profit));
+      setText('marginText',`Margem líquida: ${numberBR.format(margin)}%`);
+      $('profitRow').classList.toggle('positive',profit >= 0);
+      $('profitRow').classList.toggle('negative',profit < 0);
+      $('profitValue').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+      $('profitMeter').style.width = `${Math.max(0,Math.min(100,margin * 2))}%`;
+      animateValue('profitValue');
+
+      return {sale,production,packaging,other,totalPct,pctFees,fixed,ads,costs,netRevenue,profit,margin,markup,suggested,desired};
+    }
+
+    function save(){
+      const data = {adsMode};
+      allIds.forEach(id => data[id] = $(id).value);
+      localStorage.setItem(storageKey,JSON.stringify(data));
+      $('saveStatus').textContent = 'Salvo agora';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => $('saveStatus').textContent = 'Dados salvos automaticamente',1200);
+    }
+
+    function load(){
+      try{
+        const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        allIds.forEach(id => {
+          if(data[id] !== undefined) $(id).value = data[id];
+        });
+        if(data.adsMode) setAdsMode(data.adsMode,false);
+      }catch(e){}
+    }
+
+    function loadSavedProducts(){
+      try{
+        const parsed = JSON.parse(localStorage.getItem(productsStorageKey) || '[]');
+        savedProducts = Array.isArray(parsed) ? parsed : [];
+      }catch(e){
+        savedProducts = [];
+      }
+      renderSavedProducts();
+    }
+
+    function persistSavedProducts(){
+      localStorage.setItem(productsStorageKey,JSON.stringify(savedProducts));
+      renderSavedProducts();
+    }
+
+    function formatSavedDate(value){
+      try{
+        return new Intl.DateTimeFormat('pt-BR',{
+          day:'2-digit',month:'2-digit',year:'numeric',
+          hour:'2-digit',minute:'2-digit'
+        }).format(new Date(value));
+      }catch(e){
+        return '';
+      }
+    }
+
+    function normalizeSearchText(value){
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'')
+        .toLocaleLowerCase('pt-BR')
+        .trim();
+    }
+
+    function renderSavedProducts(){
+      const list = $('savedProductsList');
+      const searchInput = $('productSearch');
+      const query = normalizeSearchText(searchInput ? searchInput.value : '');
+      const total = savedProducts.length;
+
+      const filteredProducts = [...savedProducts]
+        .filter(product => normalizeSearchText(product.name).includes(query))
+        .sort((a,b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+
+      list.innerHTML = '';
+      $('savedCount').textContent = `${total} ${total === 1 ? 'produto' : 'produtos'}`;
+
+      if($('productsSummary')){
+        $('productsSummary').textContent = query
+          ? `${filteredProducts.length} de ${total} encontrado(s)`
+          : total
+            ? `${total} produto(s) armazenado(s)`
+            : 'Nenhum produto armazenado';
+      }
+
+      if($('clearProductSearch')){
+        $('clearProductSearch').classList.toggle('show',Boolean(query));
+      }
+
+      if(!total){
+        const empty = document.createElement('div');
+        empty.className = 'saved-empty';
+        empty.textContent = 'Nenhum produto salvo ainda.';
+        list.appendChild(empty);
+        return;
+      }
+
+      if(!filteredProducts.length){
+        const empty = document.createElement('div');
+        empty.className = 'saved-empty';
+        empty.textContent = 'Nenhum produto encontrado com esse nome.';
+        list.appendChild(empty);
+        return;
+      }
+
+      filteredProducts.forEach(product => {
+        const item = document.createElement('div');
+        item.className = 'product-item';
+
+        const info = document.createElement('div');
+
+        const name = document.createElement('div');
+        name.className = 'product-name';
+        name.textContent = product.name;
+
+        const meta = document.createElement('div');
+        meta.className = 'product-meta';
+        meta.textContent = `Salvo em ${formatSavedDate(product.updatedAt || product.createdAt)}`;
+
+        const value = document.createElement('div');
+        value.className = 'product-value';
+        value.textContent = `${money.format(product.unitCost)} por unidade`;
+
+        info.append(name,meta,value);
+
+        const actions = document.createElement('div');
+        actions.className = 'product-actions';
+
+        const useBtn = document.createElement('button');
+        useBtn.className = 'mini-btn';
+        useBtn.type = 'button';
+        useBtn.textContent = 'Usar na Shopee';
+        useBtn.addEventListener('click',() => {
+          $('productionCost').value = Number(product.unitCost || 0).toFixed(2);
+          calculateShopee();
+          save();
+          showTab('shopee');
+          toast(`${product.name} carregado`);
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'mini-btn delete';
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Excluir';
+        deleteBtn.addEventListener('click',() => {
+          if(!confirm(`Excluir o produto "${product.name}"?`)) return;
+          savedProducts = savedProducts.filter(item => item.id !== product.id);
+          persistSavedProducts();
+          toast('Produto excluído');
+        });
+
+        actions.append(useBtn,deleteBtn);
+        item.append(info,actions);
+        list.appendChild(item);
+      });
+    }
+
+    function openProductModal(){
+      const result = calculateProduction();
+      if(result.unit <= 0){
+        toast('Preencha os dados da impressão primeiro');
+        return;
+      }
+      $('modalUnitCost').textContent = money.format(result.unit);
+      $('productName').value = '';
+      $('productModal').classList.add('show');
+      setTimeout(() => $('productName').focus(),60);
+    }
+
+    function closeProductModal(){
+      $('productModal').classList.remove('show');
+    }
+
+    function saveCurrentProduct(){
+      const name = $('productName').value.trim();
+      if(!name){
+        $('productName').focus();
+        toast('Digite o nome do produto');
+        return;
+      }
+
+      const result = calculateProduction();
+      const now = new Date().toISOString();
+      const existing = savedProducts.find(item => item.name.toLocaleLowerCase('pt-BR') === name.toLocaleLowerCase('pt-BR'));
+
+      const productData = {
+        id: existing?.id || `${Date.now()}_${Math.random().toString(16).slice(2)}`,
+        name,
+        unitCost:Number(result.unit.toFixed(4)),
+        batchCost:Number(result.batch.toFixed(4)),
+        quantity:result.qty,
+        filamentGrams:num('filamentGrams'),
+        printHours:num('printHours'),
+        printMinutes:num('printMinutes'),
+        extraProduction:num('extraProduction'),
+        createdAt:existing?.createdAt || now,
+        updatedAt:now
+      };
+
+      if(existing){
+        savedProducts = savedProducts.map(item => item.id === existing.id ? productData : item);
+      }else{
+        savedProducts.push(productData);
+      }
+
+      persistSavedProducts();
+      closeProductModal();
+      toast(existing ? 'Produto atualizado' : 'Produto salvo');
+    }
+
+    function updateAll(){
+      calculateProduction();
+      calculateShopee();
+      save();
+    }
+
+    function setAdsMode(mode,shouldSave=true){
+      adsMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.toggle('active',btn.dataset.mode === mode));
+      if(mode === 'pct'){
+        $('adsLabel').textContent = 'Custo de ADS sobre a venda';
+        $('adsPrefix').textContent = '';
+        $('adsSuffix').textContent = '%';
+        $('adsValue').step = '0.1';
+      }else{
+        $('adsLabel').textContent = 'Custo fixo de ADS por venda';
+        $('adsPrefix').textContent = 'R$';
+        $('adsSuffix').textContent = '';
+        $('adsValue').step = '0.01';
+      }
+      calculateShopee();
+      if(shouldSave) save();
+    }
+
+    function showTab(tab){
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active',btn.dataset.tab === tab));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active',panel.id === tab));
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function toast(message){
+      $('toast').textContent = message;
+      $('toast').classList.add('show');
+      setTimeout(() => $('toast').classList.remove('show'),1400);
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        toast('Resumo copiado');
+      }catch(e){
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        toast('Resumo copiado');
+      }
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click',() => showTab(btn.dataset.tab)));
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.addEventListener('click',() => setAdsMode(btn.dataset.mode)));
+    allIds.forEach(id => $(id).addEventListener('input',updateAll));
+
+    $('productSearch').addEventListener('input',renderSavedProducts);
+    $('clearProductSearch').addEventListener('click',() => {
+      $('productSearch').value = '';
+      renderSavedProducts();
+      $('productSearch').focus();
+    });
+
+    $('saveProduct').addEventListener('click',openProductModal);
+    $('cancelSaveProduct').addEventListener('click',closeProductModal);
+    $('confirmSaveProduct').addEventListener('click',saveCurrentProduct);
+    $('productName').addEventListener('keydown',(event) => {
+      if(event.key === 'Enter') saveCurrentProduct();
+      if(event.key === 'Escape') closeProductModal();
+    });
+    $('productModal').addEventListener('click',(event) => {
+      if(event.target === $('productModal')) closeProductModal();
+    });
+
+    $('sendToShopee').addEventListener('click',() => {
+      const result = calculateProduction();
+      $('productionCost').value = result.unit.toFixed(2);
+      calculateShopee();
+      save();
+      showTab('shopee');
+      toast('Custo enviado para a Shopee');
+    });
+
+    $('applySuggested').addEventListener('click',() => {
+      const result = calculateShopee();
+      $('salePrice').value = result.suggested.toFixed(2);
+      calculateShopee();
+      save();
+      toast('Preço recomendado aplicado');
+    });
+
+    $('copyProduction').addEventListener('click',() => {
+      const r = calculateProduction();
+      copyText(
+`RESUMO DO CUSTO DE IMPRESSÃO
+Filamento: ${money.format(r.filament)}
+Depreciação da máquina: ${money.format(r.machine)}
+Consumo de energia: ${numberBR.format(r.energyKwh)} kWh
+Custo da energia: ${money.format(r.energy)}
+Manutenção: ${money.format(r.maintenance)}
+Acabamento e consumíveis: ${money.format(r.extras)}
+Perdas: ${money.format(r.loss)}
+Total do lote: ${money.format(r.batch)}
+Quantidade: ${r.qty}
+Custo por unidade: ${money.format(r.unit)}`
+      );
+    });
+
+    $('copyShopee').addEventListener('click',() => {
+      const r = calculateShopee();
+      copyText(
+`RESUMO DA VENDA NA SHOPEE
+Preço de venda: ${money.format(r.sale)}
+Custo do produto: ${money.format(r.production)}
+Embalagem: ${money.format(r.packaging)}
+Outros custos: ${money.format(r.other)}
+Taxas percentuais: ${money.format(r.pctFees)}
+Taxa fixa: ${money.format(r.fixed)}
+ADS: ${money.format(r.ads)}
+Lucro líquido: ${money.format(r.profit)}
+Margem líquida: ${numberBR.format(r.margin)}%
+Preço recomendado: ${money.format(r.suggested)}`
+      );
+    });
+
+    $('resetProduction').addEventListener('click',() => {
+      const calculationDefaults = {
+        filamentGrams:0,
+        printHours:0,
+        printMinutes:0,
+        batchQty:1,
+        extraProduction:0
+      };
+      Object.entries(calculationDefaults).forEach(([id,val]) => $(id).value = val);
+      updateAll();
+      toast('Cálculo limpo; custos fixos preservados');
+    });
+
+    $('saveAdvanced').addEventListener('click',() => {
+      save();
+      toast('Custos fixos salvos neste aparelho');
+    });
+
+    $('resetAdvanced').addEventListener('click',() => {
+      const k2PlusDefaults = {
+        filamentKg:85,
+        printerValue:10000,
+        printerLife:10000,
+        powerW:500,
+        energyRate:0.95,
+        maintenancePct:10,
+        lossPct:5
+      };
+      Object.entries(k2PlusDefaults).forEach(([id,val]) => $(id).value = val);
+      updateAll();
+      toast('Perfil padrão da K2 Plus restaurado');
+    });
+
+    $('resetShopee').addEventListener('click',() => {
+      const defaults = {
+        salePrice:39.90,productionCost:0,packagingCost:1,otherSaleCosts:0,
+        shopeeFeePct:22.5,campaignFeePct:2.5,fixedFee:4,taxPct:0,adsValue:10,desiredProfit:10
+      };
+      Object.entries(defaults).forEach(([id,val]) => $(id).value = val);
+      setAdsMode('pct',false);
+      updateAll();
+      toast('Venda restaurada');
+    });
+
+    load();
+    loadSavedProducts();
+    calculateProduction();
+    calculateShopee();
+  </script>
+</body>
+</html>
