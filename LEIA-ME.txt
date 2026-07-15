@@ -1,0 +1,10 @@
+
+
+REDESIGN MOBILE
+- Barra superior limpa, sem indicadores de desktop.
+- Navegação inferior redesenhada.
+- Resultado em cartão principal.
+- Shopee mostra apenas os campos essenciais.
+- Taxas detalhadas ficam em “Taxas e outros custos”.
+- ROAS permanece dentro da tela Shopee, com explicação clara.
+- Botões e formulários refeitos para uso com uma mão.
