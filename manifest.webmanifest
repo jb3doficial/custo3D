@@ -1,0 +1,41 @@
+JB3D COST STUDIO — DESKTOP + MOBILE + SINCRONIZAÇÃO QR
+
+PUBLICAÇÃO
+Envie para a raiz do GitHub:
+- index.html
+- mobile.html
+- manifest.webmanifest
+- manifest-mobile.webmanifest
+- sw.js
+- .nojekyll
+- pasta icons
+
+USO
+- No computador, abra index.html.
+- No celular, o site redireciona automaticamente para mobile.html.
+- Abra a aba Sincronizar no computador e gere o QR.
+- No celular, abra Sincronizar > Abrir câmera e leia todas as partes.
+- Confirme em Importar e mesclar.
+
+A sincronização por QR é pontual. Ela transfere custos, configurações e produtos
+sem precisar de conta ou banco de dados. Para refletir alterações futuras, gere
+um novo QR.
+
+
+CORREÇÃO DA CÂMERA
+- A câmera agora abre diretamente pela API nativa do navegador.
+- A câmera traseira é priorizada automaticamente.
+- Há um leitor alternativo para aparelhos incompatíveis.
+- O app mostra a causa quando a permissão está bloqueada.
+- Publique os arquivos e abra somente pelo endereço HTTPS do GitHub Pages.
+- Depois da atualização, feche o app instalado e abra novamente.
+
+
+VERSÃO DESKTOP PRO V2
+- O mobile.html foi preservado sem alterações.
+- O index.html recebeu interface própria para computador.
+- Indicadores fixos: custo, lucro, ROAS e produtos.
+- Formulários em até três colunas para aproveitar monitores grandes.
+- Resultado lateral sempre visível.
+- Produtos exibidos em grade.
+- Atalhos: Ctrl+1 Produção, Ctrl+2 Shopee, Ctrl+3 Produtos, Ctrl+4 Sincronização.

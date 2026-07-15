@@ -1,0 +1,39 @@
+﻿$ErrorActionPreference = "Stop"
+$AppName = "JB3D Cost Studio"
+$AppUrl = "https://jb3doficial.github.io/custo3D/index.html?desktop=1"
+$InstallDir = Join-Path $env:LOCALAPPDATA "JB3D Cost Studio"
+$Desktop = [Environment]::GetFolderPath("Desktop")
+$StartMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+$Candidates = @(
+  "$env:ProgramFiles(x86)\Microsoft\Edge\Application\msedge.exe",
+  "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
+  "$env:LOCALAPPDATA\Microsoft\Edge\Application\msedge.exe",
+  "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
+  "$env:ProgramFiles(x86)\Google\Chrome\Application\chrome.exe",
+  "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe"
+)
+$Browser = $Candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if(-not $Browser){ exit 1 }
+
+New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+$IconSource = Join-Path $ScriptDir "icons\JB3D-Cost-Studio.ico"
+$IconTarget = Join-Path $InstallDir "JB3D-Cost-Studio.ico"
+Copy-Item $IconSource $IconTarget -Force
+
+$Shell = New-Object -ComObject WScript.Shell
+$Arguments = "--app=`"$AppUrl`" --start-maximized"
+foreach($ShortcutPath in @(
+  (Join-Path $Desktop "$AppName.lnk"),
+  (Join-Path $StartMenu "$AppName.lnk")
+)){
+  $Shortcut=$Shell.CreateShortcut($ShortcutPath)
+  $Shortcut.TargetPath=$Browser
+  $Shortcut.Arguments=$Arguments
+  $Shortcut.WorkingDirectory=Split-Path $Browser
+  $Shortcut.IconLocation="$IconTarget,0"
+  $Shortcut.Description="Custos 3D, Shopee e sincronização por QR"
+  $Shortcut.Save()
+}
+Start-Process $Browser -ArgumentList $Arguments
