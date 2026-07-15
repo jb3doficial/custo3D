@@ -1,33 +1,20 @@
-{
-  "id": "./jb3d-mobile",
-  "name": "JB3D Cost Studio Mobile",
-  "short_name": "JB3D Mobile",
-  "description": "Aplicativo mobile para custos 3D, Shopee e sincronização por QR.",
-  "lang": "pt-BR",
-  "start_url": "./mobile.html",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0b1018",
-  "theme_color": "#0c1018",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ]
-}
+JB3D COST STUDIO — GITHUB PAGES
+
+Envie para a raiz do repositório:
+- index.html
+- desktop.html
+- mobile.html
+- 404.html
+- .nojekyll
+- pasta icons
+
+O index.html identifica automaticamente o dispositivo:
+- celular/tablet: abre mobile.html
+- computador: abre desktop.html
+
+Troca manual:
+- index.html?view=mobile
+- index.html?view=desktop
+
+Não envie arquivos antigos como sw.js, manifest.webmanifest ou instaladores.
+Esta versão remove service workers e caches das versões anteriores.
