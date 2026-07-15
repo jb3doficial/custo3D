@@ -1,0 +1,27 @@
+
+
+REDESIGN MOBILE
+- Barra superior limpa, sem indicadores de desktop.
+- Navegação inferior redesenhada.
+- Resultado em cartão principal.
+- Shopee mostra apenas os campos essenciais.
+- Taxas detalhadas ficam em “Taxas e outros custos”.
+- ROAS permanece dentro da tela Shopee, com explicação clara.
+- Botões e formulários refeitos para uso com uma mão.
+
+
+CORREÇÕES DE CUSTO E PRODUTOS
+- Consumíveis adicionais são informados por unidade.
+- Exemplo: R$ 0,30 por argola x 20 unidades = R$ 6,00 no lote.
+- O custo unitário recebe R$ 0,30 antes da margem de perdas.
+- O modal Salvar produto foi reforçado e o armazenamento é verificado após salvar.
+- Correções aplicadas em desktop.html e mobile.html.
+
+
+CORREÇÃO DEFINITIVA — BUILD 20260715-4
+- Consumível usa fórmula explícita: valor por unidade x quantidade.
+- A tela mostra a conta completa em tempo real.
+- O campo aceita 0,30 e 0.30.
+- Salvar produto agora usa campo direto, sem depender do modal.
+- Após salvar, o app verifica o localStorage e abre Produtos salvos.
+- O index adiciona versão ao endereço para evitar carregar HTML antigo do cache.
